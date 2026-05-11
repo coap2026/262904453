@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COAP 2026 - Common Offer Acceptance Portal</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            background-color: #e9ecef;
+            color: #333;
+            font-size: 13px;
+        }
+
+        /* Top Blue Navigation Bar */
+        .top-nav {
+            background-color: #3b5998;
+            height: 35px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .top-btn {
+            background-color: white;
+            border: 1px solid #ccc;
+            padding: 4px 12px;
+            margin-left: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            color: #333;
+            border-radius: 2px;
+        }
+
+        .top-btn:hover { background-color: #f8f9fa; }
+
+        /* Main Container */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            min-height: 80vh;
+            padding-bottom: 20px;
+        }
+
+        /* Header Section with Logos */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 40px;
+            background-color: white;
+        }
+
+        .header-center {
+            text-align: center;
+            color: #2c4a7c;
+            width: fit-content; 
+            margin: 0 auto;
+        }
+
+        .header-center h1 { font-size: 22px; margin-bottom: 5px; font-weight: bold; }
+        .header-center h2 { font-size: 16px; margin-bottom: 5px; font-weight: normal; }
+        .header-center h3 { font-size: 14px; font-weight: bold; color: #1a365d; }
+
+        /* Tab Bar */
+        .tab-bar {
+            background-color: #2c4a7c;
+            padding: 8px 20px;
+            border-bottom: 2px solid #1a365d;
+        }
+
+        .tab-active {
+            background-color: white;
+            color: #2c4a7c;
+            display: inline-block;
+            padding: 6px 15px;
+            font-weight: bold;
+            border-radius: 2px 2px 0 0;
+            margin-bottom: -8px;
+        }
+
+        /* Form Content Area */
+        .form-content {
+            padding: 20px 30px;
+        }
+
+        .deadline-text {
+            color: #d9534f;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 10px;
+        }
+
+        /* Applicant Details Grid */
+        .details-grid {
+            display: grid;
+            grid-template-columns: 150px 1fr 120px 1fr;
+            gap: 10px 15px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .details-grid .label {
+            color: #666;
+            text-align: right;
+        }
+
+        .details-grid .value {
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* Instructions Box */
+        .instructions-box {
+            background-color: #fef8dd;
+            border: 1px solid #faebcc;
+            padding: 15px 20px;
+            margin-top: 15px;
+            margin-bottom: 15px;
+            border-radius: 3px;
+            line-height: 1.6;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .instructions-box h4 {
+            color: #8a6d3b;
+            margin-bottom: 10px;
+            font-size: 13px;
+        }
+
+        .instructions-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .instructions-list > li {
+            margin-bottom: 10px;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .instructions-list > li::before {
+            content: "➤";
+            position: absolute;
+            left: 0;
+            color: #555;
+        }
+
+        .sub-list {
+            list-style-type: decimal;
+            padding-left: 25px;
+            margin-top: 5px;
+        }
+
+        /* Checkbox Area */
+        .checkbox-area {
+            margin: 15px 0;
+            color: #0056b3;
+            font-weight: bold;
+        }
+
+        .checkbox-area input[type="checkbox"] {
+            margin-right: 8px;
+            transform: scale(1.2);
+            cursor: pointer;
+        }
+
+        /* Table */
+        .table-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+            background-color: white;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #d9edf7;
+            color: #31708f;
+            font-weight: bold;
+        }
+
+        .center { text-align: center; }
+
+        input[type="radio"] {
+            transform: scale(1.2);
+            cursor: pointer;
+        }
+
+        /* Decision Buttons */
+        .action-btn {
+            padding: 5px 8px;
+            border: none;
+            border-radius: 3px;
+            color: white;
+            font-size: 11px;
+            cursor: pointer;
+            margin: 3px 0;
+            display: block;
+            width: 100%;
+            font-weight: bold;
+        }
+
+        .btn-accept { background-color: #5cb85c; }
+        .btn-retain { background-color: #f0ad4e; }
+        .btn-reject { background-color: #d9534f; }
+
+        .btn-global {
+            margin-top: 10px; 
+            padding: 6px 12px; 
+            font-size: 12px;
+            width: auto;
+        }
+
+        .action-btn:hover { filter: brightness(0.9); }
+
+        .change-link {
+            color: #337ab7;
+            font-size: 11px;
+            cursor: pointer;
+            display: inline-block;
+            margin-top: 5px;
+        }
+        .change-link:hover { text-decoration: underline; color: #23527c; }
+
+        /* Bottom Radio Option & Final Submit */
+        .bottom-option {
+            border: 1px solid #ddd;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background-color: #fafafa;
+        }
+
+        .final-submit-area {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px dashed #ccc;
+            display: none;
+        }
+
+        .btn-submit-final {
+            background-color: #2c4a7c;
+            color: white;
+            padding: 12px 30px;
+            font-size: 14px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .btn-submit-final:hover { background-color: #1a365d; }
+
+        .footer {
+            text-align: center;
+            padding: 10px;
+            color: #777;
+            font-size: 11px;
+            border-top: 1px solid #eee;
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .reset-link {
+            color: #d9534f;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        /* Custom Modal Styles (replaces default alerts) */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-box {
+            background: white;
+            padding: 25px;
+            border-radius: 5px;
+            text-align: center;
+            max-width: 400px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .modal-box p {
+            margin-bottom: 20px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .modal-btn {
+            padding: 8px 16px;
+            margin: 0 5px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .modal-btn-confirm { background-color: #5cb85c; color: white; }
+        .modal-btn-cancel { background-color: #d9534f; color: white; }
+
+    </style>
+</head>
+<body>
+
+    <div class="top-nav">
+        <button class="top-btn" onclick="clearDataAndReload()">Logout</button>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <div class="header-center">
+                <h1>COAP 2026</h1>
+                <h2>Common Offer Acceptance Portal</h2>
+                <h3>Organizing Institute: IIT Roorkee</h3>
+            </div>
+        </div>
+
+        <div class="tab-bar">
+            <div class="tab-active">Application Form</div>
+        </div>
+
+        <div class="form-content">
+            <div class="deadline-text">
+                Round 1: The deadline for decision on the offers is 13 May 2026 - 09:00:00 hrs
+            </div>
+
+            <div class="details-grid">
+                <div class="label">COAP Registration No:</div>
+                <div class="value">COAP262904453</div>
+                <div class="label"></div>
+                <div class="value"></div>
+
+                <div class="label">Applicant's Name:</div>
+                <div class="value">RIJUL GROVER</div>
+                <div class="label">Date of Birth:</div>
+                <div class="value">21/Feb/2003</div>
+
+                <div class="label">Email-Id:</div>
+                <div class="value">rijulgrover07@gmail.com</div>
+                <div class="label">Mobile No:</div>
+                <div class="value">8968900131</div>
+            </div>
+
+            <div class="instructions-box">
+                <h4>Instructions:</h4>
+                <ul class="instructions-list">
+                    <li>Select one of the offers shown in the Table below and use one of the decision buttons that get displayed against the selected offer:
+                        <ol class="sub-list">
+                            <li><strong>"Accept and Freeze"</strong> - This is my final selection. I am exiting the allotment process in subsequent rounds.</li>
+                            <li><strong>"Retain and Wait"</strong> - This is my decision in this round. I am retaining this offer but wish to proceed.</li>
+                            <li><strong>"Reject"</strong> - Reject this specific offer.</li>
+                        </ol>
+                    </li>
+                    <li>If you do not select any of the offers in this round, it means that you reject all the offers in this round but wish to be considered in subsequent rounds for your higher choices. Before clicking on "Submit" button, you must select "Reject and Wait" button.</li>
+                    <li>You should note:
+                        <ol class="sub-list">
+                            <li>Only the offer you had selected in this round (using Retain & Wait) will be available to you in subsequent rounds with upgrade, if any.</li>
+                            <li>All other offers you had not selected in this round will not be available in subsequent rounds.</li>
+                        </ol>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="checkbox-area">
+                <label>
+                    <input type="checkbox" id="consentCheckbox" onchange="toggleForm()">
+                    I have read and understood the instructions.
+                </label>
+            </div>
+
+            <div class="table-title">Offers from IITs/PSU:</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th class="center">Selection</th>
+                        <th>GATE Registration Number</th>
+                        <th>GATE Score</th>
+                        <th>Program</th>
+                        <th>Institute/PSU</th>
+                        <th>Decision</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="center">
+                            <input type="radio" name="offerSelection" id="radio0" value="0" disabled onchange="handleSelection()">
+                        </td>
+                        <td>CS26S48024031</td>
+                        <td>728</td>
+                        <td>MTech in Artificial Intelligence & Machine Learning</td>
+                        <td>IIT Gandhinagar</td>
+                        <td id="decisionCell0" style="width: 140px; vertical-align: middle;"></td>
+                    </tr>
+                    <!-- Note: The code is now robust enough to handle this missing row without throwing an error -->
+                    <!--
+                    <tr>
+                        <td class="center">
+                            <input type="radio" name="offerSelection" id="radio1" value="1" disabled onchange="handleSelection()">
+                        </td>
+                        <td>25S28015009</td>
+                        <td>851</td>
+                        <td>Artificial Intelligence</td>
+                        <td>IIT Kharagpur</td>
+                        <td id="decisionCell1" style="width: 140px; vertical-align: middle;"></td>
+                    </tr>
+                    -->
+                </tbody>
+            </table>
+
+            <div class="bottom-option">
+                <input type="radio" name="offerSelection" id="radioReject" value="rejectAll" disabled onchange="handleSelection()">
+                <label for="radioReject">I do not want to select any of the offers in this round. I wish to be considered for subsequent rounds.</label>
+            </div>
+            
+            <div id="rejectActionArea" style="display: none; text-align: left; margin-top: 15px;"></div>
+
+            <div class="final-submit-area" id="finalSubmitArea">
+                <button class="btn-submit-final" onclick="showConfirmModal()">Submit Final Decisions</button>
+            </div>
+
+        </div>
+
+        <div class="footer">
+            <span>Version 15.02.01</span>
+            <span class="reset-link" style="color: grey; cursor: pointer;" onclick="clearDataAndReload()">COAP 2026</span>
+        </div>
+    </div>
+
+    <!-- Custom Modal for Alerts and Confirms -->
+    <div id="customModal" class="modal-overlay">
+        <div class="modal-box">
+            <p id="modalMessage"></p>
+            <div id="modalActionsConfirm" style="display: none;">
+                <button class="modal-btn modal-btn-confirm" onclick="executeFinalSubmit()">Yes, Submit</button>
+                <button class="modal-btn modal-btn-cancel" onclick="closeModal()">Cancel</button>
+            </div>
+            <div id="modalActionsOk" style="display: none;">
+                <button class="modal-btn modal-btn-confirm" onclick="closeModal()">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let offerStates = ['None', 'None']; 
+        let globalRejectStaged = false;
+        let isFrozen = false; 
+
+        // Gather DOM elements dynamically to prevent null reference errors
+        const radios = [document.getElementById('radio0'), document.getElementById('radio1'), document.getElementById('radioReject')];
+        const decisionCells = [document.getElementById('decisionCell0'), document.getElementById('decisionCell1')];
+        const rejectActionArea = document.getElementById('rejectActionArea');
+        const finalSubmitArea = document.getElementById('finalSubmitArea');
+        const consentCheckbox = document.getElementById('consentCheckbox');
+
+        // --- LOCAL STORAGE LOGIC ---
+        function loadSavedState() {
+            const savedStates = localStorage.getItem('coapOfferStates');
+            const savedGlobalReject = localStorage.getItem('coapGlobalReject');
+            const savedIsFrozen = localStorage.getItem('coapIsFrozen');
+            const wasAgreed = localStorage.getItem('coapAgreed') === 'true';
+
+            if (savedStates) offerStates = JSON.parse(savedStates);
+            if (savedGlobalReject) globalRejectStaged = savedGlobalReject === 'true';
+            if (savedIsFrozen) isFrozen = savedIsFrozen === 'true';
+            
+            if (wasAgreed || isFrozen) {
+                consentCheckbox.checked = true;
+            }
+
+            if (isFrozen) {
+                renderFrozenState();
+            } else {
+                toggleForm(); 
+                handleSelection(); 
+            }
+        }
+
+        function saveState() {
+            localStorage.setItem('coapOfferStates', JSON.stringify(offerStates));
+            localStorage.setItem('coapGlobalReject', globalRejectStaged);
+            localStorage.setItem('coapIsFrozen', isFrozen);
+            localStorage.setItem('coapAgreed', consentCheckbox.checked);
+        }
+
+        function clearDataAndReload() {
+            localStorage.clear();
+            location.reload();
+        }
+
+        // --- UI LOGIC ---
+        function toggleForm() {
+            const isChecked = consentCheckbox.checked;
+            saveState(); 
+
+            radios.forEach(radio => {
+                // Safeguard check for elements that might be missing or commented out
+                if (radio && !consentCheckbox.disabled) {
+                    radio.disabled = !isChecked;
+                }
+                if (radio && !isChecked) {
+                    radio.checked = false;
+                }
+            });
+            handleSelection();
+        }
+
+        function handleSelection() {
+            if (isFrozen) return; 
+
+            // Render Individual Rows
+            for(let i = 0; i < 2; i++) {
+                if (!decisionCells[i]) continue; // Skip if row is missing/commented
+
+                if (offerStates[i] !== 'None') {
+                    decisionCells[i].innerHTML = `
+                        <div style="color: ${getColor(offerStates[i])}; font-weight: bold;">${offerStates[i]}</div>
+                        <span class="change-link" onclick="clearDecision(${i})">✎ Change</span>
+                    `;
+                    // Ensure visual selection matches the saved state
+                    if (radios[i]) radios[i].checked = true;
+                } else if (radios[i] && radios[i].checked && !globalRejectStaged) {
+                    decisionCells[i].innerHTML = `
+                        <button class="action-btn btn-accept" onclick="stageDecision('Accept and Freeze', ${i})">Accept and Freeze</button>
+                        <button class="action-btn btn-retain" onclick="stageDecision('Retain and Wait', ${i})">Retain and Wait</button>
+                        <button class="action-btn btn-reject" onclick="stageDecision('Reject', ${i})">Reject</button>
+                    `;
+                } else {
+                    decisionCells[i].innerHTML = '';
+                }
+            }
+
+            // Render Global Reject Area
+            const radioReject = document.getElementById('radioReject');
+            if (globalRejectStaged) {
+                rejectActionArea.innerHTML = `
+                    <div style="color: #d9534f; font-weight: bold;">Reject and Wait All</div>
+                    <span class="change-link" onclick="clearGlobalReject()">✎ Change</span>
+                `;
+                rejectActionArea.style.display = 'block';
+                if (radioReject) radioReject.checked = true;
+            } else if (radioReject && radioReject.checked) {
+                rejectActionArea.innerHTML = `<button class="action-btn btn-reject btn-global" onclick="stageGlobalReject()">Reject and Wait All</button>`;
+                rejectActionArea.style.display = 'block';
+            } else {
+                rejectActionArea.style.display = 'none';
+            }
+
+            checkSubmitVisibility();
+        }
+
+        function getColor(state) {
+            if (state.includes('Accept')) return '#5cb85c';
+            if (state.includes('Retain')) return '#d58512';
+            if (state.includes('Reject')) return '#d9534f';
+            return 'black';
+        }
+
+        // --- STAGING DECISIONS ---
+        function stageDecision(decision, index) {
+            offerStates = ['None', 'None']; // Clear other decisions to ensure only 1 selection
+            globalRejectStaged = false; 
+            offerStates[index] = decision;
+            saveState();
+            handleSelection(); 
+        }
+
+        function stageGlobalReject() {
+            offerStates = ['None', 'None']; 
+            globalRejectStaged = true;
+            saveState();
+            handleSelection();
+        }
+
+        // --- CLEARING/EDITING ---
+        function clearDecision(index) {
+            offerStates[index] = 'None';
+            if (radios[index]) radios[index].checked = true; 
+            saveState();
+            handleSelection();
+        }
+
+        function clearGlobalReject() {
+            globalRejectStaged = false;
+            const radioReject = document.getElementById('radioReject');
+            if (radioReject) radioReject.checked = true;
+            saveState();
+            handleSelection();
+        }
+
+        // --- FINAL SUBMISSION & MODALS ---
+        function checkSubmitVisibility() {
+            const hasDecision = offerStates.some(state => state !== 'None') || globalRejectStaged;
+            if (finalSubmitArea) {
+                finalSubmitArea.style.display = hasDecision ? 'block' : 'none';
+            }
+        }
+
+        function showConfirmModal() {
+            document.getElementById('modalMessage').innerText = "Are you sure you want to lock in and submit your final decisions? This action cannot be undone.";
+            document.getElementById('modalActionsConfirm').style.display = 'block';
+            document.getElementById('modalActionsOk').style.display = 'none';
+            document.getElementById('customModal').style.display = 'flex';
+        }
+
+        function showSuccessModal() {
+            document.getElementById('modalMessage').innerText = "Success! Your decisions have been securely submitted and frozen for this round.";
+            document.getElementById('modalActionsConfirm').style.display = 'none';
+            document.getElementById('modalActionsOk').style.display = 'block';
+            document.getElementById('customModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('customModal').style.display = 'none';
+        }
+
+        function executeFinalSubmit() {
+            closeModal();
+            
+            // Process implied/auto rejections before locking
+            const hasAccept = offerStates.includes('Accept and Freeze');
+            if (hasAccept) {
+                for(let i=0; i<2; i++) {
+                    if (offerStates[i] === 'None') offerStates[i] = 'Rejected (Auto)';
+                }
+            }
+            if (globalRejectStaged) {
+                for(let i=0; i<2; i++) {
+                    offerStates[i] = 'Rejected';
+                }
+            }
+
+            isFrozen = true;
+            saveState();
+            renderFrozenState();
+            showSuccessModal();
+        }
+
+        function renderFrozenState() {
+            consentCheckbox.disabled = true;
+            radios.forEach(radio => {
+                if (radio) radio.disabled = true;
+            });
+            if (finalSubmitArea) finalSubmitArea.style.display = 'none'; 
+
+            for(let i=0; i<2; i++) {
+                if (decisionCells[i]) {
+                    decisionCells[i].innerHTML = `<div style="color: ${getColor(offerStates[i])}; font-weight: bold;">${offerStates[i]}</div>`;
+                }
+            }
+
+            if (globalRejectStaged) {
+                rejectActionArea.innerHTML = `<div style="color: #d9534f; font-weight: bold;">Reject and Wait All</div>`;
+                rejectActionArea.style.display = 'block';
+            } else {
+                rejectActionArea.style.display = 'none';
+            }
+        }
+
+        // Initialize on page load
+        window.onload = loadSavedState;
+
+    </script>
+</body>
+</html>
