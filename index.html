@@ -203,7 +203,7 @@
 
         .center { text-align: center; }
 
-        input[type="radio"] {
+        input[type="checkbox"] {
             transform: scale(1.2);
             cursor: pointer;
         }
@@ -244,7 +244,7 @@
         }
         .change-link:hover { text-decoration: underline; color: #23527c; }
 
-        /* Bottom Radio Option & Final Submit */
+        /* Bottom Option & Final Submit */
         .bottom-option {
             border: 1px solid #ddd;
             padding: 10px;
@@ -350,7 +350,7 @@
 
         <div class="form-content">
             <div class="deadline-text">
-                Round 1: The deadline for decision on the offers is 13 May 2026 - 09:00:00 hrs
+                Round 2: The deadline for decision on the offers is 20 May 2026 - 09:00:00 hrs
             </div>
 
             <div class="details-grid">
@@ -412,7 +412,7 @@
                 <tbody>
                     <tr>
                         <td class="center">
-                            <input type="radio" name="offerSelection" id="radio0" value="0" disabled onchange="handleSelection()">
+                            <input type="checkbox" id="radio0" value="0" disabled onchange="handleSelection()">
                         </td>
                         <td>CS26S48024031</td>
                         <td>728</td>
@@ -420,24 +420,21 @@
                         <td>IIT Gandhinagar</td>
                         <td id="decisionCell0" style="width: 140px; vertical-align: middle;"></td>
                     </tr>
-                    <!-- Note: The code is now robust enough to handle this missing row without throwing an error -->
-                    <!--
                     <tr>
                         <td class="center">
-                            <input type="radio" name="offerSelection" id="radio1" value="1" disabled onchange="handleSelection()">
+                            <input type="checkbox" id="radio1" value="1" disabled onchange="handleSelection()">
                         </td>
-                        <td>25S28015009</td>
-                        <td>851</td>
-                        <td>Artificial Intelligence</td>
-                        <td>IIT Kharagpur</td>
+                        <td>CS26S48024031</td>
+                        <td>728</td>
+                        <td>MTech in Artificial Intelligence</td>
+                        <td>IIT Ropar</td>
                         <td id="decisionCell1" style="width: 140px; vertical-align: middle;"></td>
                     </tr>
-                    -->
                 </tbody>
             </table>
 
             <div class="bottom-option">
-                <input type="radio" name="offerSelection" id="radioReject" value="rejectAll" disabled onchange="handleSelection()">
+                <input type="checkbox" id="radioReject" value="rejectAll" disabled onchange="handleSelection()">
                 <label for="radioReject">I do not want to select any of the offers in this round. I wish to be considered for subsequent rounds.</label>
             </div>
             
@@ -455,7 +452,6 @@
         </div>
     </div>
 
-    <!-- Custom Modal for Alerts and Confirms -->
     <div id="customModal" class="modal-overlay">
         <div class="modal-box">
             <p id="modalMessage"></p>
@@ -522,7 +518,6 @@
             saveState(); 
 
             radios.forEach(radio => {
-                // Safeguard check for elements that might be missing or commented out
                 if (radio && !consentCheckbox.disabled) {
                     radio.disabled = !isChecked;
                 }
@@ -536,9 +531,22 @@
         function handleSelection() {
             if (isFrozen) return; 
 
+            // Handle unchecking logic manually clearing the staged state
+            for(let i = 0; i < 2; i++) {
+                if (radios[i] && !radios[i].checked && offerStates[i] !== 'None') {
+                    offerStates[i] = 'None';
+                    saveState();
+                }
+            }
+
+            if (radios[2] && !radios[2].checked && globalRejectStaged) {
+                globalRejectStaged = false;
+                saveState();
+            }
+
             // Render Individual Rows
             for(let i = 0; i < 2; i++) {
-                if (!decisionCells[i]) continue; // Skip if row is missing/commented
+                if (!decisionCells[i]) continue; 
 
                 if (offerStates[i] !== 'None') {
                     decisionCells[i].innerHTML = `
@@ -586,9 +594,14 @@
 
         // --- STAGING DECISIONS ---
         function stageDecision(decision, index) {
-            offerStates = ['None', 'None']; // Clear other decisions to ensure only 1 selection
+            // FIXED: Removed the line that clears other choices so multiple can be processed
             globalRejectStaged = false; 
             offerStates[index] = decision;
+            
+            // Uncheck the global reject if they make an individual decision
+            const radioReject = document.getElementById('radioReject');
+            if (radioReject) radioReject.checked = false;
+
             saveState();
             handleSelection(); 
         }
@@ -596,6 +609,12 @@
         function stageGlobalReject() {
             offerStates = ['None', 'None']; 
             globalRejectStaged = true;
+
+            // Uncheck individual rows
+            for(let i=0; i<2; i++) {
+                if (radios[i]) radios[i].checked = false;
+            }
+
             saveState();
             handleSelection();
         }
